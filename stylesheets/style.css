@@ -17,23 +17,25 @@ header {
   color: gold;
   text-align: center;
   text-shadow: 5px 5px 2px rgba(0, 0, 0, 0.8);
-  margin-bottom: 1%; }
+  margin-bottom: 1%;
+  height: 8%; }
 
 main {
   display: flex;
-  flex-grow: 1;
+  height: 92%;
   border-width: 5px; }
 
 .column {
   width: 16.66667%;
+  height: 100%;
   display: flex;
   flex-direction: column; }
 
 .cell {
   border: 2px solid black;
   width: 100%;
+  height: 16.66667%;
   text-align: center;
-  flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center; }
