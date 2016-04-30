@@ -1,7 +1,7 @@
 * {
   margin: 0;
   box-sizing: border-box;
-  font-size: 20pt; }
+  font-size: 19pt; }
 
 body {
   background-color: darkblue;
@@ -35,6 +35,7 @@ main {
   border: 2px solid black;
   width: 100%;
   height: 16.66667%;
+  text-shadow: 5px 5px 2px rgba(0, 0, 0, 0.8);
   text-align: center;
   display: flex;
   justify-content: center;
