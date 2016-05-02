@@ -13,7 +13,6 @@ $(function() {
 var categories,
     currentRound,
     clueVals,
-    promises,
     numCats;
 
 // ================
@@ -21,7 +20,6 @@ var categories,
 // ================
 
 function newRound() {
-    promises = [];
     categories = {};
     numCats = 0;
     $('body').addClass('waiting');
@@ -92,15 +90,14 @@ function handleQuestion(e) {
     var questions = categories[category].questions;
     for (var question of questions) {
         if (question.value === clickedVal) {
-            promptUser(question.question, $(this));
+            promptUser(question, $(this));
             break;
         }
     }
 }
 
 function promptUser(question, cell) {
-    // console.log(question);
-    var $prompt = $('<div class="prompt">' + question.toUpperCase() + '</div>');
+    var $prompt = $('<div class="prompt">' + question.question.toUpperCase() + '</div>');
     cell.text('');
     cell.prepend($prompt);
     $prompt.animate({
@@ -113,15 +110,27 @@ function promptUser(question, cell) {
     var $answerField = $('<input type="text" id="answer">');
     $prompt.append($answerField);
     $answerField.before('<br><br><label for="answer">What is...</label>');
-    $answerField.click(function(e) {
-      e.stopPropagation();
+    $answerField.keypress(function(key) {
+        if (key.keyCode === 13) {
+            var answer = $answerField.val();
+            checkAnswer(question, answer);
+        }
     });
-$('label').click(function(e) {
-      e.stopPropagation();
-    });
-    $prompt.click(function() {
-      $(this).hide();
-    });
+}
+
+function checkAnswer(question, answer) {
+    // console.log(category, question.question, question.answer);
+
+    // console.log(question.question + "\n", answer + "\n", question.answer);
+
+    var correct = question.answer.toLowerCase(); // TODO: add functionality for removing <i>, <strong>, <em>, etc. tags
+    var user = answer.toLowerCase();
+
+    if (correct === user) {
+        console.log("Correct!");
+    } else {
+        console.log("Incorrect!  Boo hiss!");
+    }
 }
 
 function checkRound() {

@@ -75,4 +75,7 @@ main {
     margin: 0;
 }
 
+input:focus {
+  outline: none;
+}
 /*# sourceMappingURL=style.css.map */
