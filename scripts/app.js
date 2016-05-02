@@ -1,63 +1,103 @@
 // Set up the Game
 $(function() {
     currentRound = 1;
-    checkRound();
-    getCategories()
-        .then(populateCategories)
-        .then(getQuestions)
-        .then(attachHandlers);
+    newRound();
 });
 
 
 
-// =======
-// Helpers
-// =======
 
+// ================
+// Global Variables
+// ================
 var categories,
     currentRound,
-    clueVals;
+    clueVals,
+    promises,
+    numCats;
 
-function getCategories() {
-    return $.ajax({
+// ================
+// Helper Functions
+// ================
+
+function newRound() {
+    promises = [];
+    categories = {};
+    numCats = 0;
+    getCategory();
+}
+
+function getCategory() {
+    // Get a random question
+    promises.push($.ajax({
         method: 'GET',
         dataType: 'json',
-        url: 'http://jservice.io/api/random?count=6'
-    });
-}
-
-function populateCategories(data) {
-    categories = {};
-    for (var i = 0; i < data.length; i++) {
-        var catName = data[i].category.title;
+        url: 'http://jservice.io/api/random'
+    }).done(function(data) {
+        // Get that question's category
+        var catName = data[0].category.title;
+        var catID = data[0].category_id;
         categories[catName] = {
-            id: data[i].category.id,
+            id: data[0].category.id,
             questions: []
         };
-        // Populate Category divs
-        $('.column:nth-child(' + (i + 1) + ') .category').text(data[i].category.title.toUpperCase());
-    }
-    return data;
-}
-
-function getQuestions(data) {
-    var promises = [];
-    for (var cat of data) {
-        var prom = $.ajax({
+        $.ajax({
             method: 'GET',
             dataType: 'json',
-            url: 'http://jservice.io/api/clues?category=' + cat.category_id
-        });
-        promises.push(prom);
-    }
-    Promise.all(promises).then(function(data) {
-        for (var category of data) {
-            for (var i = 0; i < category.length; i++) {
-                var catName = category[i].category.title;
-                categories[catName].questions.push(category[i]);
+            url: 'http://jservice.io/api/category?id=' + catID
+        }).done(function(data) {
+            checkRound();
+            // Make sure category has appropriate values for the round and no null values
+            for (var clue of data.clues) {
+                var clueIndex = clueVals.indexOf(clue.value);
+                if (clueIndex !== -1) {
+                    clueVals.splice(clueIndex, 1);
+                    categories[catName].questions.push(clue);
+                }
             }
-        }
-    });
+            if (categories[catName].questions.length >= 5) {
+                categories[catName].questions.sort(valueSort);
+            } else {
+                delete categories[catName];
+            }
+            numCats = Object.keys(categories).length;
+            if (numCats < 6) {
+                getCategory();
+            }
+        });
+    }));
+    Promise.all(promises).then(populateCategories);
+}
+
+
+function populateCategories() {
+    var i = 1;
+    for (var category in categories) {
+        $('.column:nth-child(' + i + ') .category').text(category.toUpperCase());
+        i++;
+    }
+    getQuestions();
+}
+
+function getQuestions() {
+  console.log("Categories:", Object.keys(categories).length, categories);
+    //     var promises = [];
+    //     for (var cat of data) {
+    //         var prom = $.ajax({
+    //             method: 'GET',
+    //             dataType: 'json',
+    //             url: 'http://jservice.io/api/clues?category=' + cat.category_id
+    //         });
+    //         promises.push(prom);
+    //     }
+    //     Promise.all(promises).then(function(data) {
+    //         for (var category of data) {
+    //             for (var i = 0; i < category.length; i++) {
+    //                 var catName = category[i].category.title;
+    //                 categories[catName].questions.push(category[i]);
+    //             }
+    //         }
+    //     });
 }
 
 function handleQuestion(e) {
@@ -82,4 +122,8 @@ function checkRound() {
 
 function attachHandlers() {
     $('.question').click(handleQuestion);
+}
+
+function valueSort(a, b) {
+    return a.value - b.value;
 }
