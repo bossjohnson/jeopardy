@@ -24,12 +24,13 @@ function newRound() {
     promises = [];
     categories = {};
     numCats = 0;
+    $('body').addClass('waiting');
     getCategory();
 }
 
 function getCategory() {
     // Get a random question
-    promises.push($.ajax({
+    $.ajax({
         method: 'GET',
         dataType: 'json',
         url: 'http://jservice.io/api/random'
@@ -61,14 +62,15 @@ function getCategory() {
                 delete categories[catName];
             }
             numCats = Object.keys(categories).length;
+            // Ensure that we have 6 categories
             if (numCats < 6) {
                 getCategory();
+            } else {
+                populateCategories();
             }
         });
-    }));
-    Promise.all(promises).then(populateCategories);
+    });
 }
-
 
 function populateCategories() {
     var i = 1;
@@ -76,28 +78,12 @@ function populateCategories() {
         $('.column:nth-child(' + i + ') .category').text(category.toUpperCase());
         i++;
     }
-    getQuestions();
+    $('body').removeClass('waiting');
+    attachHandlers();
 }
 
-function getQuestions() {
-  console.log("Categories:", Object.keys(categories).length, categories);
-    //     var promises = [];
-    //     for (var cat of data) {
-    //         var prom = $.ajax({
-    //             method: 'GET',
-    //             dataType: 'json',
-    //             url: 'http://jservice.io/api/clues?category=' + cat.category_id
-    //         });
-    //         promises.push(prom);
-    //     }
-    //     Promise.all(promises).then(function(data) {
-    //         for (var category of data) {
-    //             for (var i = 0; i < category.length; i++) {
-    //                 var catName = category[i].category.title;
-    //                 categories[catName].questions.push(category[i]);
-    //             }
-    //         }
-    //     });
+function attachHandlers() {
+    $('.question').click(handleQuestion);
 }
 
 function handleQuestion(e) {
@@ -106,10 +92,36 @@ function handleQuestion(e) {
     var questions = categories[category].questions;
     for (var question of questions) {
         if (question.value === clickedVal) {
-            console.log(question.question);
+            promptUser(question.question, $(this));
             break;
         }
     }
+}
+
+function promptUser(question, cell) {
+    // console.log(question);
+    var $prompt = $('<div class="prompt">' + question.toUpperCase() + '</div>');
+    cell.text('');
+    cell.prepend($prompt);
+    $prompt.animate({
+        'height': '100%',
+        'width': '100%',
+        'top': 0,
+        'left': 0
+    }, 700);
+    cell.off('click');
+    var $answerField = $('<input type="text" id="answer">');
+    $prompt.append($answerField);
+    $answerField.before('<br><br><label for="answer">What is...</label>');
+    $answerField.click(function(e) {
+      e.stopPropagation();
+    });
+$('label').click(function(e) {
+      e.stopPropagation();
+    });
+    $prompt.click(function() {
+      $(this).hide();
+    });
 }
 
 function checkRound() {
@@ -118,10 +130,6 @@ function checkRound() {
     } else {
         clueVals = [400, 800, 1200, 1600, 2000];
     }
-}
-
-function attachHandlers() {
-    $('.question').click(handleQuestion);
 }
 
 function valueSort(a, b) {

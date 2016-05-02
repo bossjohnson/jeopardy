@@ -1,53 +1,78 @@
 * {
-  margin: 0;
-  box-sizing: border-box;
-  font-size: 19pt; }
-
+    margin: 0;
+    box-sizing: border-box;
+    font-size: 19pt;
+}
 body {
-  background-color: darkblue;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  height: 100vh;
-  width: 100vw;
-  padding: 1%; }
-
+    background-color: darkblue;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    height: 100vh;
+    width: 100vw;
+    padding: 1%;
+}
+body.waiting * {
+    cursor: progress;
+}
 header {
-  font-size: 2em;
-  color: gold;
-  text-align: center;
-  text-shadow: 5px 5px 2px rgba(0, 0, 0, 0.8);
-  margin-bottom: 1%;
-  height: 8%; }
-
+    font-size: 2em;
+    color: gold;
+    text-align: center;
+    text-shadow: 5px 5px 2px rgba(0, 0, 0, 0.8);
+    margin-bottom: 1%;
+    height: 8%;
+}
 main {
-  display: flex;
-  height: 92%;
-  border-width: 5px; }
-
+    display: flex;
+    height: 92%;
+    border-width: 5px;
+}
 .column {
-  width: 16.66667%;
-  height: 100%;
-  display: flex;
-  flex-direction: column; }
-
+    width: 16.66667%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
 .cell {
-  border: 2px solid black;
-  width: 100%;
-  height: 16.66667%;
-  text-shadow: 5px 5px 2px rgba(0, 0, 0, 0.8);
-  text-align: center;
-  display: flex;
-  justify-content: center;
-  align-items: center; }
-
+    border: 2px solid black;
+    width: 100%;
+    height: 16.66667%;
+    text-shadow: 5px 5px 2px rgba(0, 0, 0, 0.8);
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 .category {
-  color: white;
-  max-height: 16.66667%;
-  border-bottom-width: 5px; }
-
+    color: white;
+    max-height: 16.66667%;
+    border-bottom-width: 5px;
+}
 .question {
-  color: gold;
-  font-size: 1.5em; }
+    color: gold;
+    font-size: 1.5em;
+}
+.prompt {
+    position: fixed;
+    border: 1px dotted black;
+    border-radius: 8px;
+    color: white;
+    background-color: darkblue;
+    width: 0;
+    height: 0;
+    font-size: 2.1em;
+    padding: 5%;
+}
+.prompt label, .prompt input {
+    color: black;
+    border: none;
+    text-shadow: none;
+    font-size: inherit;
+    background-color: white;
+    font-family: sans-serif;
+    padding: 0;
+    margin: 0;
+}
 
 /*# sourceMappingURL=style.css.map */
