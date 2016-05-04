@@ -181,12 +181,14 @@ function dailyDouble(question, cell) {
         $('#wager').after($trueDD);
 
         // Attach event handlers
-        // TODO: Deal with True Daily Double
         $('#trueDD').click(function() {
-            console.log("True Daily Double!");
-
-
-
+            if (money > 0) {
+                wager = money;
+                $('#dailyDouble').remove();
+                promptUser(question, cell);
+            } else {
+              console.log("nope");
+            }
         });
 
         $('#wager').keypress(function(key) {
@@ -214,11 +216,11 @@ function checkAnswer(question, answer, $prompt) {
     var user = normalizeAnswer(answer)[0];
 
     if (correct === user) {
-        console.log("Correct!");
         if (!thisIsADailyDouble) {
-          money += question.value * currentRound;
+            money += question.value * currentRound;
         } else {
-          money += wager;
+            money += wager;
+            $('#applause').get(0).play()
         }
         $('#feedbackContainer').show();
         $('#wrong').hide();
@@ -234,9 +236,10 @@ function checkAnswer(question, answer, $prompt) {
         $('#wrong').show();
         $('#feedbackContainer').fadeOut(1000);
         if (!thisIsADailyDouble) {
-          money -= question.value * currentRound;
+            money -= question.value * currentRound;
         } else {
-          money -= wager;
+            money -= wager;
+            $('#bummer').get(0).play()
         }
         if (money < 0) {
             $('.money').css('color', 'red');
@@ -284,12 +287,11 @@ function valueSort(a, b) {
 }
 
 function addDailyDoubles() {
-    // TODO: Add daily doubles
     if (currentRound === 1) {
         var row = Math.floor(Math.random() * 4) + 1;
         var col = Math.floor(Math.random() * 5) + 1;
-        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
+        // $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
     } else {
         var row1 = Math.floor(Math.random() * 4) + 1;
         var col1 = Math.floor(Math.random() * 5) + 1;
@@ -301,8 +303,6 @@ function addDailyDoubles() {
             console.log("Trying again!");
             addDailyDoubles();
         }
-        $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').css('background-color', 'red');
-        $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').css('background-color', 'red');
         $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').attr('dailyDouble', 'true');
         $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').attr('dailyDouble', 'true');
     }
