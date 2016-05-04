@@ -116,12 +116,12 @@ function promptUser(question, cell) {
     cell.prepend($prompt);
 
     if (!thisIsADailyDouble) {
-      var expandFrom = document.getElementsByClassName('prompt')[0].getBoundingClientRect();
-      var left = expandFrom.left;
-      var top = expandFrom.top;
+        var expandFrom = document.getElementsByClassName('prompt')[0].getBoundingClientRect();
+        var left = expandFrom.left;
+        var top = expandFrom.top;
         $prompt.css({
-          'top': top + 'px',
-          'left': left + 'px'
+            'top': top + 'px',
+            'left': left + 'px'
         });
         $prompt.animate({
             'height': '100%',
@@ -153,10 +153,20 @@ function promptUser(question, cell) {
 
 function dailyDouble(question, cell) {
     $('#dailyDoubleSound').get(0).play();
-    $('body').prepend($('<div id="dailyDouble"></div>'));
-    $('#dailyDouble').animate({
+    var $dd = $('<div id="dailyDouble"></div>');
+    cell.prepend($dd);
+    var expandFrom = document.getElementById('dailyDouble').getBoundingClientRect();
+    var left = expandFrom.left;
+    var top = expandFrom.top;
+    $dd.css({
+        'top': top + 'px',
+        'left': left + 'px'
+    });
+    $dd.animate({
         'height': '100%',
-        'width': '100%'
+        'width': '100%',
+        'top': '-=' + top + 'px',
+        'left': '-=' + left + 'px'
     }, 700);
     window.setTimeout(function() {
         var $wager = $('<div><label for="wager">How much would you like to wager?</label><input type="number" id="wager"></div>');
@@ -176,7 +186,7 @@ function dailyDouble(question, cell) {
                 $('#dailyDouble').remove();
                 promptUser(question, cell);
             } else {
-              console.log("nope");
+                console.log("nope");
             }
         });
 
@@ -280,7 +290,7 @@ function addDailyDoubles() {
         var row = Math.floor(Math.random() * 4) + 1;
         var col = Math.floor(Math.random() * 5) + 1;
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
-        // $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
+        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
     } else {
         var row1 = Math.floor(Math.random() * 4) + 1;
         var col1 = Math.floor(Math.random() * 5) + 1;

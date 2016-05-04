@@ -125,8 +125,6 @@ video {
     background-size: 100% 100%;
     position: fixed;
     margin: 0;
-    top: 0;
-    left: 0;
     height: 0;
     width: 0;
     display: flex;
@@ -145,6 +143,8 @@ video {
     justify-content: center;
     align-items: center;
     background-color: white;
+    color: black;
+    text-shadow: none;
 }
 #trueDD {
     font-size: .5em;
