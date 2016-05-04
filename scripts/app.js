@@ -193,7 +193,9 @@ function dailyDouble(question, cell) {
         $('#wager').keypress(function(key) {
             if (key.keyCode === 13) {
                 var wagerAmt = Number($('#wager').val());
-                if (wagerAmt > money && wagerAmt > (1000 * currentRound)) {
+
+
+                if (wagerAmt > money && wagerAmt > (1000 * currentRound) || wagerAmt < 0) {
                     console.log("You can't wager that much!");
                     $('#wager').css('border', '5px solid red');
                     $('#wager').animate({
@@ -290,7 +292,7 @@ function addDailyDoubles() {
         var row = Math.floor(Math.random() * 4) + 1;
         var col = Math.floor(Math.random() * 5) + 1;
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
-        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
+        // $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
     } else {
         var row1 = Math.floor(Math.random() * 4) + 1;
         var col1 = Math.floor(Math.random() * 5) + 1;
