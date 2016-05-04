@@ -9,24 +9,6 @@ $(function() {
 });
 
 
-
-
-// ================
-// Global Variables
-// ================
-var categories,
-    money,
-    currentRound,
-    clueVals,
-    numCats,
-    cluesUsed,
-    wager,
-    thisIsADailyDouble;
-
-// ================
-// Helper Functions
-// ================
-
 function newRound() {
     categories = {};
     numCats = 0;
@@ -134,11 +116,18 @@ function promptUser(question, cell) {
     cell.prepend($prompt);
 
     if (!thisIsADailyDouble) {
+      var expandFrom = document.getElementsByClassName('prompt')[0].getBoundingClientRect();
+      var left = expandFrom.left;
+      var top = expandFrom.top;
+        $prompt.css({
+          'top': top + 'px',
+          'left': left + 'px'
+        });
         $prompt.animate({
             'height': '100%',
             'width': '100%',
-            'top': 0,
-            'left': 0
+            'top': '-=' + top + 'px',
+            'left': '-=' + left + 'px'
         }, 700);
     } else {
         $prompt.css({
@@ -245,7 +234,7 @@ function checkAnswer(question, answer, $prompt) {
             $('.money').css('color', 'red');
         }
     }
-    $prompt.hide();
+    $prompt.remove(); // NOTE: changed this...did I break something?
     $('.money').text('$' + money);
     // Go to next round?
     cluesUsed++;
@@ -264,7 +253,7 @@ function normalizeAnswer(answer) {
         optional = optional[0].replace(/[\(\)]/g, '');
         console.log('Optional:', optional);
     }
-    answer = answer.toLowerCase().replace(/<.+?>|-|\./g, '').split(' ');
+    answer = answer.toLowerCase().replace(/<.+?>|-|\.|\\/g, '').split(' ');
     for (var i = 0; i < answer.length; i++) {
         var word = answer[i];
         var wordIndex = answer.indexOf(word);
@@ -297,6 +286,7 @@ function addDailyDoubles() {
         var col1 = Math.floor(Math.random() * 5) + 1;
         var row2 = Math.floor(Math.random() * 4) + 1;
         var col2 = Math.floor(Math.random() * 5) + 1;
+
         // Make sure we have two different cells!
         // TODO: Debug this!  It puts up three daily doubles sometimes???
         if (row1 === row2 && col1 === col2) {
@@ -312,3 +302,16 @@ function addDailyDoubles() {
 // TODO: Add timers
 // TODO: Add final jeopardy
 // TODO: "SEEN HERE" stuff -      https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
+
+
+// ================
+// Global Variables
+// ================
+var categories,
+    money,
+    currentRound,
+    clueVals,
+    numCats,
+    cluesUsed,
+    wager,
+    thisIsADailyDouble;
