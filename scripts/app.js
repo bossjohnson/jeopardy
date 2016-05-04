@@ -1,6 +1,6 @@
 // Set up the Game
 $(function() {
-    currentRound = 1;
+    currentRound = 2;
     money = 0;
     $('#feedbackContainer').hide();
     $('#wrong').hide();
@@ -89,7 +89,7 @@ function populateCategories() {
 
 function populateQuestionValues() {
     for (var i = 1; i < 7; i++) {
-        $('#boardFill').get(0).play();
+        $('#boardFillSound').get(0).play();
         window.setTimeout(function() {
             $('.column:nth-of-type(' + i + ') .question:nth-of-type(2)').text('$' + (200 * currentRound));
             $('.column:nth-of-type(' + (((i + 2) % 6) + 1) + ') .question:nth-of-type(3)').text('$' + (400 * currentRound));
@@ -100,21 +100,24 @@ function populateQuestionValues() {
         }, 350 * i);
     }
     i = 1;
-    attachHandlers();
-}
-
-function attachHandlers() {
+    // Attach click handlers
+    addDailyDoubles();
     $('.question').click(handleQuestion);
 }
 
 function handleQuestion(e) {
     $(this).attr('used', 'true');
 
-    var clickedVal = Number($(this).text().replace('$', ''))/currentRound;
+    var clickedVal = Number($(this).text().replace('$', '')) / currentRound;
     var category = $(this).parent().children('.category').text().toLowerCase();
     var questions = categories[category].questions;
     for (var question of questions) {
         if (question.value === clickedVal) {
+            // Is it a Daily Double?
+            if ($(this).attr('dailyDouble')) {
+                dailyDouble(question, $(this));
+                return;
+            }
             promptUser(question, $(this));
             break;
         }
@@ -143,6 +146,20 @@ function promptUser(question, cell) {
             checkAnswer(question, answer, $prompt);
         }
     });
+}
+
+function dailyDouble() {
+    $('#dailyDoubleSound').get(0).play();
+    $('body').prepend($('<div id="dailyDouble"></div>'));
+    $('#dailyDouble').animate({
+        'height': '100%',
+        'width': '100%'
+    }, 700);
+    window.setTimeout(function() {
+        var $wager = $('<div><label for="wager">Wager:</label><br><input type="text" id="wager"></div>');
+        $('#dailyDouble').append($wager);
+        $('#dailyDouble div').prepend($('<span>You currently have $' + money + '.</span>'));
+    }, 1400);
 }
 
 function checkAnswer(question, answer, $prompt) {
@@ -175,13 +192,14 @@ function checkAnswer(question, answer, $prompt) {
     $('.money').text('$' + money);
     // Go to next round?
     cluesUsed++;
-    console.log(cluesUsed);
+    console.log("Clues used:", cluesUsed);
     if (cluesUsed === 30) {
         currentRound = 2;
         newRound();
     }
 }
 
+// TODO: Enhance this function to be more awesomer and great
 function normalizeAnswer(answer) {
 
     var optional = answer.match(/\(.+?\)/g);
@@ -211,8 +229,33 @@ function valueSort(a, b) {
     return a.value - b.value;
 }
 
+function addDailyDoubles() {
+    // TODO: Add daily doubles
+    if (currentRound === 1) {
+        var row = Math.floor(Math.random() * 4) + 1;
+        var col = Math.floor(Math.random() * 5) + 1;
+        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
+
+        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
+    } else {
+        var row1 = Math.floor(Math.random() * 4) + 1;
+        var col1 = Math.floor(Math.random() * 5) + 1;
+        var row2 = Math.floor(Math.random() * 4) + 1;
+        var col2 = Math.floor(Math.random() * 5) + 1;
+        // Make sure we have two different cells!
+        if (row1 === row2 && col1 === col2) {
+            console.log("Trying again!");
+            addDailyDoubles();
+        }
+        $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').css('background-color', 'red');
+        $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').css('background-color', 'red');
+
+        $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').attr('dailyDouble', 'true');
+        $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').attr('dailyDouble', 'true');
+    }
+}
+
 
 // TODO: Add timers
-// TODO: Add daily doubles
 // TODO: Add final jeopardy
 // TODO: "SEEN HERE" stuff -      https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b

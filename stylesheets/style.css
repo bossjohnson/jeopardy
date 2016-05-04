@@ -118,5 +118,29 @@ input:focus {
     color: red;
 }
 video {
-  display: none;
+    display: none;
+}
+#dailyDouble {
+    background: url("../images/daily_double.jpg") no-repeat;
+    background-size: 100% 100%;
+    position: fixed;
+    margin: 0;
+    top: 0;
+    left: 0;
+    height: 0;
+    width: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 15px solid black;
+}
+#dailyDouble div {
+    margin-top: 1%;
+    padding: 1%;
+    border: 5px solid black;
+    border-radius: 10px;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    background-color: white;
 }
