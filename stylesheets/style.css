@@ -65,10 +65,10 @@ main {
     font-size: 1.5em;
 }
 .question:hover {
-  cursor: pointer;
+    cursor: pointer;
 }
 .question[used='true']:hover {
-  cursor: default;
+    cursor: default;
 }
 .prompt {
     position: fixed;
@@ -116,4 +116,7 @@ input:focus {
 }
 #wrong {
     color: red;
+}
+video {
+  display: none;
 }

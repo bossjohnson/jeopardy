@@ -18,7 +18,8 @@ var categories,
     money,
     currentRound,
     clueVals,
-    numCats;
+    numCats,
+    cluesUsed;
 
 // ================
 // Helper Functions
@@ -27,6 +28,7 @@ var categories,
 function newRound() {
     categories = {};
     numCats = 0;
+    cluesUsed = 0;
     $('body').addClass('waiting');
     getCategory();
 }
@@ -50,7 +52,7 @@ function getCategory() {
             dataType: 'json',
             url: 'http://jservice.io/api/category?id=' + catID
         }).done(function(data) {
-            checkRound();
+            clueVals = [200, 400, 600, 800, 1000];
             // Make sure category has appropriate values for the round and no null values
             for (var clue of data.clues) {
                 var clueIndex = clueVals.indexOf(clue.value);
@@ -82,6 +84,22 @@ function populateCategories() {
         i++;
     }
     $('body').removeClass('waiting');
+    populateQuestionValues();
+}
+
+function populateQuestionValues() {
+    for (var i = 1; i < 7; i++) {
+        $('#boardFill').get(0).play();
+        window.setTimeout(function() {
+            $('.column:nth-of-type(' + i + ') .question:nth-of-type(2)').text('$' + (200 * currentRound));
+            $('.column:nth-of-type(' + (((i + 2) % 6) + 1) + ') .question:nth-of-type(3)').text('$' + (400 * currentRound));
+            $('.column:nth-of-type(' + (((i + 4) % 6) + 1) + ') .question:nth-of-type(4)').text('$' + (600 * currentRound));
+            $('.column:nth-of-type(' + (((i + 6) % 6) + 1) + ') .question:nth-of-type(5)').text('$' + (800 * currentRound));
+            $('.column:nth-of-type(' + (((i + 8) % 6) + 1) + ') .question:nth-of-type(6)').text('$' + (1000 * currentRound));
+            i++;
+        }, 350 * i);
+    }
+    i = 1;
     attachHandlers();
 }
 
@@ -91,7 +109,8 @@ function attachHandlers() {
 
 function handleQuestion(e) {
     $(this).attr('used', 'true');
-    var clickedVal = Number($(this).text().replace('$', ''));
+
+    var clickedVal = Number($(this).text().replace('$', ''))/currentRound;
     var category = $(this).parent().children('.category').text().toLowerCase();
     var questions = categories[category].questions;
     for (var question of questions) {
@@ -133,7 +152,7 @@ function checkAnswer(question, answer, $prompt) {
 
     if (correct === user) {
         console.log("Correct!");
-        money += question.value;
+        money += question.value * currentRound;
         $('#feedbackContainer').show();
         $('#wrong').hide();
         $('#correct').show();
@@ -147,44 +166,45 @@ function checkAnswer(question, answer, $prompt) {
         $('#correct').hide();
         $('#wrong').show();
         $('#feedbackContainer').fadeOut(1000);
-        money -= question.value;
+        money -= question.value * currentRound;
         if (money < 0) {
             $('.money').css('color', 'red');
         }
     }
     $prompt.hide();
     $('.money').text('$' + money);
+    // Go to next round?
+    cluesUsed++;
+    console.log(cluesUsed);
+    if (cluesUsed === 30) {
+        currentRound = 2;
+        newRound();
+    }
 }
 
 function normalizeAnswer(answer) {
 
     var optional = answer.match(/\(.+?\)/g);
     if (optional) {
-      optional = optional[0].replace(/[\(\)]/g, '');
-      console.log('Optional:', optional);
+        optional = optional[0].replace(/[\(\)]/g, '');
+        console.log('Optional:', optional);
     }
     answer = answer.toLowerCase().replace(/<.+?>|-/g, '').split(' ');
-    for (var word of answer) {
+    for (var i = 0; i < answer.length; i++) {
+        var word = answer[i];
         var wordIndex = answer.indexOf(word);
-
-        // word = word.replace(/<.+?>|-/g, '');
-
-        if (word === 'a' || word === 'an' || word === 'the') {
+        if (word === 'a' || word === 'an' || word === 'the' || word === 'and') {
             answer.splice(wordIndex, 1);
+            i--;
+        }
+        if (word[word.length - 1] === 's' && word[word.length - 2] !== 's') {
+            word.slice(word.length - 1, 1);
         }
     }
     answer = answer.reduce(function(a, b) {
-      return a + b;
+        return a + b;
     });
     return [answer, optional];
-}
-
-function checkRound() {
-    if (currentRound === 1) {
-        clueVals = [200, 400, 600, 800, 1000];
-    } else {
-        clueVals = [400, 800, 1200, 1600, 2000];
-    }
 }
 
 function valueSort(a, b) {
@@ -193,7 +213,6 @@ function valueSort(a, b) {
 
 
 // TODO: Add timers
-// TODO: Add round 2
 // TODO: Add daily doubles
 // TODO: Add final jeopardy
 // TODO: "SEEN HERE" stuff -      https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
