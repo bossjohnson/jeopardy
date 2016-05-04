@@ -141,6 +141,12 @@ video {
     border-radius: 10px;
     z-index: 1;
     display: flex;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     background-color: white;
+}
+#trueDD {
+    font-size: .5em;
+    background-color: lightblue;
 }

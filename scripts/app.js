@@ -1,6 +1,6 @@
 // Set up the Game
 $(function() {
-    currentRound = 2;
+    currentRound = 1;
     money = 0;
     $('#feedbackContainer').hide();
     $('#wrong').hide();
@@ -19,7 +19,9 @@ var categories,
     currentRound,
     clueVals,
     numCats,
-    cluesUsed;
+    cluesUsed,
+    wager,
+    thisIsADailyDouble;
 
 // ================
 // Helper Functions
@@ -115,9 +117,11 @@ function handleQuestion(e) {
         if (question.value === clickedVal) {
             // Is it a Daily Double?
             if ($(this).attr('dailyDouble')) {
+                thisIsADailyDouble = true;
                 dailyDouble(question, $(this));
                 return;
             }
+            thisIsADailyDouble = false;
             promptUser(question, $(this));
             break;
         }
@@ -128,12 +132,22 @@ function promptUser(question, cell) {
     var $prompt = $('<div class="prompt">' + question.question.toUpperCase() + '</div>');
     cell.text('');
     cell.prepend($prompt);
-    $prompt.animate({
-        'height': '100%',
-        'width': '100%',
-        'top': 0,
-        'left': 0
-    }, 700);
+
+    if (!thisIsADailyDouble) {
+        $prompt.animate({
+            'height': '100%',
+            'width': '100%',
+            'top': 0,
+            'left': 0
+        }, 700);
+    } else {
+        $prompt.css({
+            'height': '100%',
+            'width': '100%',
+            'top': 0,
+            'left': 0
+        });
+    }
     cell.off('click');
     var $answerField = $('<input type="text" id="answer">');
     $prompt.append($answerField);
@@ -148,7 +162,7 @@ function promptUser(question, cell) {
     });
 }
 
-function dailyDouble() {
+function dailyDouble(question, cell) {
     $('#dailyDoubleSound').get(0).play();
     $('body').prepend($('<div id="dailyDouble"></div>'));
     $('#dailyDouble').animate({
@@ -156,9 +170,41 @@ function dailyDouble() {
         'width': '100%'
     }, 700);
     window.setTimeout(function() {
-        var $wager = $('<div><label for="wager">Wager:</label><br><input type="text" id="wager"></div>');
+        var $wager = $('<div><label for="wager">How much would you like to wager?</label><input type="number" id="wager"></div>');
+        var $trueDD = $('<br><button id="trueDD">I\'d like to make it a true Daily Double!</button>');
         $('#dailyDouble').append($wager);
-        $('#dailyDouble div').prepend($('<span>You currently have $' + money + '.</span>'));
+        $('#dailyDouble div').prepend($('<span>You currently have <span id="yourMoney">$' + money + '</span>.</span><br>'));
+        if (money < 0) {
+            $('#yourMoney').css('color', 'red');
+        }
+        $('#wager').focus();
+        $('#wager').after($trueDD);
+
+        // Attach event handlers
+        // TODO: Deal with True Daily Double
+        $('#trueDD').click(function() {
+            console.log("True Daily Double!");
+
+
+
+        });
+
+        $('#wager').keypress(function(key) {
+            if (key.keyCode === 13) {
+                var wagerAmt = Number($('#wager').val());
+                if (wagerAmt > money && wagerAmt > (1000 * currentRound)) {
+                    console.log("You can't wager that much!");
+                    $('#wager').css('border', '5px solid red');
+                    $('#wager').animate({
+                        'border-width': '1px'
+                    }, 100);
+                } else {
+                    wager = wagerAmt;
+                    $('#dailyDouble').remove();
+                    promptUser(question, cell);
+                }
+            }
+        });
     }, 1400);
 }
 
@@ -169,7 +215,11 @@ function checkAnswer(question, answer, $prompt) {
 
     if (correct === user) {
         console.log("Correct!");
-        money += question.value * currentRound;
+        if (!thisIsADailyDouble) {
+          money += question.value * currentRound;
+        } else {
+          money += wager;
+        }
         $('#feedbackContainer').show();
         $('#wrong').hide();
         $('#correct').show();
@@ -183,7 +233,11 @@ function checkAnswer(question, answer, $prompt) {
         $('#correct').hide();
         $('#wrong').show();
         $('#feedbackContainer').fadeOut(1000);
-        money -= question.value * currentRound;
+        if (!thisIsADailyDouble) {
+          money -= question.value * currentRound;
+        } else {
+          money -= wager;
+        }
         if (money < 0) {
             $('.money').css('color', 'red');
         }
@@ -207,7 +261,7 @@ function normalizeAnswer(answer) {
         optional = optional[0].replace(/[\(\)]/g, '');
         console.log('Optional:', optional);
     }
-    answer = answer.toLowerCase().replace(/<.+?>|-/g, '').split(' ');
+    answer = answer.toLowerCase().replace(/<.+?>|-|\./g, '').split(' ');
     for (var i = 0; i < answer.length; i++) {
         var word = answer[i];
         var wordIndex = answer.indexOf(word);
@@ -235,7 +289,6 @@ function addDailyDoubles() {
         var row = Math.floor(Math.random() * 4) + 1;
         var col = Math.floor(Math.random() * 5) + 1;
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
-
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
     } else {
         var row1 = Math.floor(Math.random() * 4) + 1;
@@ -243,13 +296,13 @@ function addDailyDoubles() {
         var row2 = Math.floor(Math.random() * 4) + 1;
         var col2 = Math.floor(Math.random() * 5) + 1;
         // Make sure we have two different cells!
+        // TODO: Debug this!  It puts up three daily doubles sometimes???
         if (row1 === row2 && col1 === col2) {
             console.log("Trying again!");
             addDailyDoubles();
         }
         $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').css('background-color', 'red');
         $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').css('background-color', 'red');
-
         $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').attr('dailyDouble', 'true');
         $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').attr('dailyDouble', 'true');
     }
