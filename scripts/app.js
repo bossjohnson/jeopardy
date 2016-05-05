@@ -36,7 +36,6 @@ $(function() {
     });
 });
 
-
 function newRound() {
     categories = {};
     numCats = 0;
@@ -168,20 +167,49 @@ function promptUser(question, cell) {
         });
     }
     cell.off('click');
-    window.setTimeout(function() {
 
-        var $answerField = $('<input type="text" id="answer">');
-        $prompt.append($answerField);
-        $answerField.before('<br><br><label for="answer">What is </label>');
-        $answerField.after('<label for="answer">?</label>');
-        $answerField.focus();
-        $answerField.keypress(function(key) {
-            if (key.keyCode === 13) {
-                var answer = $answerField.val();
-                checkAnswer(question, answer, $prompt);
-            }
-        });
-    }, 800);
+    $(document).keypress(function(key) {
+        if (key.keyCode === 13) {
+            window.clearInterval(ringIn);
+            console.log("Answer Now");
+            $(document).off('keypress');
+            var $answerField = $('<input type="text" id="answer">');
+            $prompt.append($answerField);
+            $answerField.before('<br><br><label for="answer">What is </label>');
+            $answerField.after('<label for="answer">?</label>');
+            $answerField.focus();
+            $answerField.keypress(function(key) {
+                if (key.keyCode === 13) {
+                    var answer = $answerField.val();
+                    checkAnswer(question, answer, $prompt);
+                }
+            });
+        }
+    });
+
+    // Timer for player to ring in
+    var timeToRingIn = 6;
+    var ringIn = window.setInterval(function() {
+        console.log(timeToRingIn--);
+
+        if (timeToRingIn < 0) {
+            window.clearInterval(ringIn);
+            console.log("time's up");
+            $('#timesUp').get(0).play();
+            $prompt.remove();
+        }
+    }, 1000);
+
+
+
+    // window.setTimeout(function() {
+    //
+    //     });
+    // }, 800);
+
+
+
+
 }
 
 function dailyDouble(question, cell) {
