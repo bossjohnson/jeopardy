@@ -1,5 +1,13 @@
 // Set up the Game
 $(function() {
+
+    // Skip to Final Jeopardy NOTE: REMOVE FOR PRODUCTION!
+    $(document).keydown(function(key) {
+        if (key.keyCode === 16) {
+            finalJeopardy();
+        }
+    });
+
     currentRound = 1;
     money = 0;
     $('#feedbackContainer').hide();
@@ -73,7 +81,7 @@ function getCategory() {
                 }
             }
             if (categories[catName].questions.length >= 5) {
-                categories[catName].questions.sort(valueSort);
+                categories[catName].questions.sort(valueSort, '');
             } else {
                 delete categories[catName];
             }
@@ -172,7 +180,7 @@ function promptUser(question, cell) {
     $(document).keypress(function(key) {
         if (key.keyCode === 13) {
             window.clearInterval(ringIn);
-            console.log("Answer Now");
+
             $(document).off('keypress');
             $('#pressEnter').remove();
             var $answerField = $('<input type="text" id="answer">');
@@ -192,6 +200,7 @@ function promptUser(question, cell) {
             $prompt.append($timerBar);
 
             var timeLeft = 5;
+            window.clearInterval(timeToAnswer);
             timeToAnswer = window.setInterval(function() {
                 if (!timeLeft) {
                     console.log('Out of time!');
@@ -213,7 +222,7 @@ function promptUser(question, cell) {
     });
 
     // Timer for player to ring in
-    var timeToRingIn = 4;
+    var timeToRingIn = 5;
     var ringIn = window.setInterval(function() {
         timeToRingIn--;
 
@@ -266,7 +275,7 @@ function dailyDouble(question, cell) {
         });
 
         $('#wager').keypress(function(key) {
-            if (key.keyCode === 13) {
+            if (key.keyCode === 13 && $('#wager').val() !== '') {
                 var wagerAmt = Number($('#wager').val());
 
 
@@ -342,10 +351,18 @@ function normalizeAnswer(answer) {
 
     var optional = answer.match(/\(.+?\)/g);
     if (optional) {
-        optional = optional[0].replace(/[\(\)]/g, '');
+        answer = answer.replace(optional, '');
+        optional = optional[0].replace(/[\(\)]|or /g, '');
         console.log('Optional:', optional);
     }
+
+    // Ignore plurals
+    if (answer[answer.length - 1] === 's') {
+        answer = answer.slice(0, -1);
+    }
+
     answer = answer.toLowerCase().replace(/<.+?>|-|\.|\\|\'|\&/g, '')
+        .replace('10', 'ten')
         .replace('9', 'nine')
         .replace('8', 'eight')
         .replace('7', 'seven')
@@ -369,7 +386,7 @@ function normalizeAnswer(answer) {
     }
     answer = answer.reduce(function(a, b) {
         return a + b;
-    });
+    }, '');
     return [answer, optional];
 }
 
@@ -382,7 +399,6 @@ function addDailyDoubles() {
         var row = Math.floor(Math.random() * 4) + 1;
         var col = Math.floor(Math.random() * 5) + 1;
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
-        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
     } else {
         var row1 = Math.floor(Math.random() * 4) + 1;
         var col1 = Math.floor(Math.random() * 5) + 1;
@@ -397,24 +413,86 @@ function addDailyDoubles() {
         }
         $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').attr('dailyDouble', 'true');
         $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').attr('dailyDouble', 'true');
-        // $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').css('background-color', 'red');
     }
 }
 
 function finalJeopardy() {
-    console.log("Final Jeopardy!");
-    var $finalJeopardy = $('<div id="finalJeopardy"></div>');
-    $('body').prepend($finalJeopardy);
-    $finalJeopardy.animate({
-        'height': '100%',
-        'width': '100%'
-    }, 700);
+    money = 1000; // NOTE: FOR TESTING - remove for production
+    var question;
+    var answer;
+    $.ajax({
+        method: 'GET',
+        dataType: 'json',
+        url: 'http://jservice.io/api/random'
+    }).done(function(data) {
+        question = data[0].question;
+        answer = data[0].answer;
+
+
+        var $finalJeopardy = $('<div id="finalJeopardy"></div>');
+        $('body').prepend($finalJeopardy);
+        $finalJeopardy.animate({
+            'height': '100%',
+        }, 700, function() {
+            var $wager = $('<div><label for="wager">How much would you like to wager?</label><input type="number" id="wager"></div>');
+            $finalJeopardy.append($wager);
+            $('#finalJeopardy div').prepend($('<span>You currently have <span id="yourMoney">$' + money + '</span>.</span><br>'));
+            $('#finalJeopardy div').prepend($('<span>The category is: <span class="finalJeopardyCategory">' + data[0].category.title.toUpperCase() + '</span></span>'));
+            $('#wager').focus();
+
+            $('#wager').keypress(function(key) {
+                if (key.keyCode === 13 && $('#wager').val() !== '') {
+                    var wagerAmt = Number($('#wager').val());
+
+                    if (wagerAmt > money || wagerAmt < 0) {
+                        console.log("You can't wager that much!");
+                        $('#wager').css('border', '5px solid red');
+                        $('#wager').animate({
+                            'border-width': '1px'
+                        }, 100);
+                    } else {
+                        wager = wagerAmt;
+                        $('#finalJeopardy div').remove();
+                        finalPrompt(question, answer);
+                    }
+                }
+            });
+        });
+    });
+}
+
+function finalPrompt(question, answer) {
+    var $prompt = $('<div id="finalPrompt" class="prompt">' + question.toUpperCase() + '</div>');
+    $('#finalJeopardy').prepend($prompt);
+    $('#finalJeopardy').addClass('question');
+    var $answerField = $('<input type="text" id="answer">');
+    $prompt.append($answerField);
+    $answerField.before('<br><br><label for="answer">What is </label>');
+    $answerField.after('<label for="answer">?</label>');
+    $answerField.focus();
+    $prompt.css('display', 'inline-block');
+    $prompt.css('text-align', 'center');
+    $answerField.keypress(function(key) {
+        if (key.keyCode === 13) {
+            finalCheck(answer, $answerField.val());
+        }
+    });
 
 }
 
-// TODO: Add timers
-// TODO: "SEEN HERE" stuff -      https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
+function finalCheck(correctAnswer, userAnswer) {
+    $('#finalJeopardy').remove();
+    var correct = normalizeAnswer(correctAnswer)[0];
+    var user = normalizeAnswer(userAnswer)[0];
 
+    if (correct === user) {
+      console.log("yup!");
+    } else {
+      console.log("nope");
+    }
+
+}
+// TODO: "SEEN HERE" stuff -      https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
 
 // ================
 // Global Variables
