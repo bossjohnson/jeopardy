@@ -5,6 +5,22 @@ $(function() {
     $('#feedbackContainer').hide();
     $('#wrong').hide();
     $('#correct').hide();
+    $podium = $(`<div id="namePrompt">Please enter your name
+                <div class="podium">
+                <div class="podiumSidebar"></div>
+                <div class="podiumCenter">
+                <div class="podiumTopBottom"></div>
+                <div class="podiumDisplay">$0</div>
+                <div class="podiumDisplay">
+                <input id="yourName" type="text">
+                </div>
+                <div class="podiumTopBottom"></div>
+                </div>
+                <div class="podiumSidebar"></div>
+                </div>
+                </div>`);
+    $('body').prepend($podium);
+    $('#yourName').focus();
     newRound();
 });
 
@@ -323,8 +339,8 @@ function finalJeopardy() {
     var $finalJeopardy = $('<div id="finalJeopardy"></div>');
     $('body').prepend($finalJeopardy);
     $finalJeopardy.animate({
-      'height': '100%',
-      'width': '100%'
+        'height': '100%',
+        'width': '100%'
     }, 700);
 
 }
