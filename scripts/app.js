@@ -25,7 +25,7 @@ $(function() {
     $('#yourName').focus();
     newRound();
     $('#yourName').keypress(function(key) {
-        if (key.keyCode === 13) {
+        if (key.keyCode === 13 && $('#yourName').val() !== '') {
             playerName = $('#yourName').val();
             $podium.remove();
             $('.money').show();
@@ -167,17 +167,42 @@ function promptUser(question, cell) {
         });
     }
     cell.off('click');
+    $prompt.append('<span id="pressEnter"><br>(press Enter to answer)</span>');
 
     $(document).keypress(function(key) {
         if (key.keyCode === 13) {
             window.clearInterval(ringIn);
             console.log("Answer Now");
             $(document).off('keypress');
+            $('#pressEnter').remove();
             var $answerField = $('<input type="text" id="answer">');
             $prompt.append($answerField);
             $answerField.before('<br><br><label for="answer">What is </label>');
             $answerField.after('<label for="answer">?</label>');
             $answerField.focus();
+
+            var $timerBar = $('<div class="timerBar"></div>');
+            var $block = $('<div class="redBlock"></div>');
+
+            for (var i = 0; i < 10; i++) {
+                var newBlock = $block.clone();
+                $timerBar.append(newBlock);
+            }
+
+            $prompt.append($timerBar);
+
+            var timeLeft = 5;
+            timeToAnswer = window.setInterval(function() {
+                if (!timeLeft) {
+                    console.log('Out of time!');
+                    $('#timesUp').get(0).play();
+                    checkAnswer(question, $answerField.val(), $prompt);
+                }
+                $timerBar.children().first().remove();
+                $timerBar.children().last().remove();
+                console.log(timeLeft--);
+            }, 2000);
+
             $answerField.keypress(function(key) {
                 if (key.keyCode === 13) {
                     var answer = $answerField.val();
@@ -188,9 +213,9 @@ function promptUser(question, cell) {
     });
 
     // Timer for player to ring in
-    var timeToRingIn = 6;
+    var timeToRingIn = 4;
     var ringIn = window.setInterval(function() {
-        console.log(timeToRingIn--);
+        timeToRingIn--;
 
         if (timeToRingIn < 0) {
             window.clearInterval(ringIn);
@@ -199,17 +224,6 @@ function promptUser(question, cell) {
             $prompt.remove();
         }
     }, 1000);
-
-
-
-    // window.setTimeout(function() {
-    //
-    //     });
-    // }, 800);
-
-
-
-
 }
 
 function dailyDouble(question, cell) {
@@ -273,6 +287,7 @@ function dailyDouble(question, cell) {
 }
 
 function checkAnswer(question, answer, $prompt) {
+    window.clearInterval(timeToAnswer);
 
     var correct = normalizeAnswer(question.answer)[0];
     var user = normalizeAnswer(answer)[0];
@@ -412,4 +427,5 @@ var categories,
     cluesUsed,
     wager,
     thisIsADailyDouble,
-    playerName;
+    playerName,
+    timeToAnswer;
