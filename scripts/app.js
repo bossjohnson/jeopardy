@@ -5,6 +5,8 @@ $(function() {
     $('#feedbackContainer').hide();
     $('#wrong').hide();
     $('#correct').hide();
+    $('.money').hide();
+    $('.playerName').hide();
     $podium = $(`<div id="namePrompt">Please enter your name
                 <div class="podium">
                 <div class="podiumSidebar"></div>
@@ -22,14 +24,27 @@ $(function() {
     $('body').prepend($podium);
     $('#yourName').focus();
     newRound();
+    $('#yourName').keypress(function(key) {
+        if (key.keyCode === 13) {
+            playerName = $('#yourName').val();
+            $podium.remove();
+            $('.money').show();
+            $('.playerName').text(playerName);
+            $('.playerName').show();
+            populateQuestionValues();
+        }
+    });
 });
 
 
 function newRound() {
+
+
     categories = {};
     numCats = 0;
-    cluesUsed = 0;
+    cluesUsed = 29;
     $('body').addClass('waiting');
+
     getCategory();
 }
 
@@ -72,6 +87,9 @@ function getCategory() {
                 getCategory();
             } else {
                 populateCategories();
+                if (currentRound === 2) {
+                  populateQuestionValues();
+                }
             }
         });
     });
@@ -84,10 +102,10 @@ function populateCategories() {
         i++;
     }
     $('body').removeClass('waiting');
-    populateQuestionValues();
 }
 
 function populateQuestionValues() {
+
     for (var i = 1; i < 7; i++) {
         $('#boardFillSound').get(0).play();
         window.setTimeout(function() {
@@ -315,7 +333,7 @@ function addDailyDoubles() {
         var row = Math.floor(Math.random() * 4) + 1;
         var col = Math.floor(Math.random() * 5) + 1;
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
-        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
+        // $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
     } else {
         var row1 = Math.floor(Math.random() * 4) + 1;
         var col1 = Math.floor(Math.random() * 5) + 1;
@@ -359,4 +377,5 @@ var categories,
     numCats,
     cluesUsed,
     wager,
-    thisIsADailyDouble;
+    thisIsADailyDouble,
+    playerName;
