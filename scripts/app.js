@@ -38,13 +38,10 @@ $(function() {
 
 
 function newRound() {
-
-
     categories = {};
     numCats = 0;
-    cluesUsed = 29;
+    cluesUsed = 0;
     $('body').addClass('waiting');
-
     getCategory();
 }
 
@@ -88,7 +85,7 @@ function getCategory() {
             } else {
                 populateCategories();
                 if (currentRound === 2) {
-                  populateQuestionValues();
+                    populateQuestionValues();
                 }
             }
         });
@@ -105,7 +102,6 @@ function populateCategories() {
 }
 
 function populateQuestionValues() {
-
     for (var i = 1; i < 7; i++) {
         $('#boardFillSound').get(0).play();
         window.setTimeout(function() {
@@ -306,7 +302,17 @@ function normalizeAnswer(answer) {
         optional = optional[0].replace(/[\(\)]/g, '');
         console.log('Optional:', optional);
     }
-    answer = answer.toLowerCase().replace(/<.+?>|-|\.|\\/g, '').split(' ');
+    answer = answer.toLowerCase().replace(/<.+?>|-|\.|\\|\'|\&/g, '')
+        .replace('9', 'nine')
+        .replace('8', 'eight')
+        .replace('7', 'seven')
+        .replace('6', 'six')
+        .replace('5', 'five')
+        .replace('4', 'four')
+        .replace('3', 'three')
+        .replace('2', 'two')
+        .replace('1', 'one')
+        .split(' ');
     for (var i = 0; i < answer.length; i++) {
         var word = answer[i];
         var wordIndex = answer.indexOf(word);
@@ -333,7 +339,7 @@ function addDailyDoubles() {
         var row = Math.floor(Math.random() * 4) + 1;
         var col = Math.floor(Math.random() * 5) + 1;
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
-        // $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
+        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
     } else {
         var row1 = Math.floor(Math.random() * 4) + 1;
         var col1 = Math.floor(Math.random() * 5) + 1;

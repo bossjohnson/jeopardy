@@ -125,7 +125,6 @@ video {
     display: none;
 }
 #dailyDouble, #finalJeopardy {
-    background-size: 100% 100%;
     position: fixed;
     margin: 0;
     height: 0;
@@ -137,6 +136,7 @@ video {
 }
 #dailyDouble {
     background: url("../images/daily_double.jpg") no-repeat;
+    background-size: 100% 100%;
 }
 #dailyDouble div {
     margin-top: 1%;
