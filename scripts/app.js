@@ -482,17 +482,26 @@ function finalPrompt(question, answer) {
 
 function finalCheck(correctAnswer, userAnswer) {
     $('#finalJeopardy').remove();
+    $('main *').remove();
     var correct = normalizeAnswer(correctAnswer)[0];
     var user = normalizeAnswer(userAnswer)[0];
 
     if (correct === user) {
       console.log("yup!");
+      $('#feedbackContainer').show();
+      $('#wrong').hide();
+      $('#correct').show();
+      $('#feedbackContainer').fadeOut(3000);
     } else {
       console.log("nope");
+      $('#feedbackContainer').show();
+      $('#correct').hide();
+      $('#wrong').show();
+      $('#feedbackContainer').fadeOut(3000);
     }
 
 }
-// TODO: "SEEN HERE" stuff -      https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
+// TODO: "SEEN HERE" stuff -       https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
 
 // ================
 // Global Variables
