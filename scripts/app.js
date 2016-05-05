@@ -138,17 +138,20 @@ function promptUser(question, cell) {
         });
     }
     cell.off('click');
-    var $answerField = $('<input type="text" id="answer">');
-    $prompt.append($answerField);
-    $answerField.before('<br><br><label for="answer">What is </label>');
-    $answerField.after('<label for="answer">?</label>');
-    $answerField.focus();
-    $answerField.keypress(function(key) {
-        if (key.keyCode === 13) {
-            var answer = $answerField.val();
-            checkAnswer(question, answer, $prompt);
-        }
-    });
+    window.setTimeout(function() {
+
+        var $answerField = $('<input type="text" id="answer">');
+        $prompt.append($answerField);
+        $answerField.before('<br><br><label for="answer">What is </label>');
+        $answerField.after('<label for="answer">?</label>');
+        $answerField.focus();
+        $answerField.keypress(function(key) {
+            if (key.keyCode === 13) {
+                var answer = $answerField.val();
+                checkAnswer(question, answer, $prompt);
+            }
+        });
+    }, 800);
 }
 
 function dailyDouble(question, cell) {
@@ -246,14 +249,18 @@ function checkAnswer(question, answer, $prompt) {
             $('.money').css('color', 'red');
         }
     }
-    $prompt.remove(); // NOTE: changed this...did I break something?
+    $prompt.remove();
     $('.money').text('$' + money);
+
     // Go to next round?
     cluesUsed++;
-    console.log("Clues used:", cluesUsed);
     if (cluesUsed === 30) {
-        currentRound = 2;
-        newRound();
+        if (currentRound === 1) {
+            currentRound = 2;
+            newRound();
+        } else {
+            finalJeopardy();
+        }
     }
 }
 
@@ -292,7 +299,7 @@ function addDailyDoubles() {
         var row = Math.floor(Math.random() * 4) + 1;
         var col = Math.floor(Math.random() * 5) + 1;
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
-        // $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
+        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
     } else {
         var row1 = Math.floor(Math.random() * 4) + 1;
         var col1 = Math.floor(Math.random() * 5) + 1;
@@ -307,12 +314,22 @@ function addDailyDoubles() {
         }
         $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').attr('dailyDouble', 'true');
         $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').attr('dailyDouble', 'true');
+        // $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').css('background-color', 'red');
     }
 }
 
+function finalJeopardy() {
+    console.log("Final Jeopardy!");
+    var $finalJeopardy = $('<div id="finalJeopardy"></div>');
+    $('body').prepend($finalJeopardy);
+    $finalJeopardy.animate({
+      'height': '100%',
+      'width': '100%'
+    }, 700);
+
+}
 
 // TODO: Add timers
-// TODO: Add final jeopardy
 // TODO: "SEEN HERE" stuff -      https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
 
 

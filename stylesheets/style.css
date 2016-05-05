@@ -120,8 +120,7 @@ input:focus {
 video {
     display: none;
 }
-#dailyDouble {
-    background: url("../images/daily_double.jpg") no-repeat;
+#dailyDouble, #finalJeopardy {
     background-size: 100% 100%;
     position: fixed;
     margin: 0;
@@ -131,6 +130,9 @@ video {
     justify-content: center;
     align-items: center;
     border: 15px solid black;
+}
+#dailyDouble {
+  background: url("../images/daily_double.jpg") no-repeat;
 }
 #dailyDouble div {
     margin-top: 1%;
@@ -149,4 +151,10 @@ video {
 #trueDD {
     font-size: .5em;
     background-color: lightblue;
+}
+#finalJeopardy {
+    background: url("../images/final_jeopardy.jpg") no-repeat;
+    background-size: 100% 100%;
+    top: 0;
+    left: 0;
 }
