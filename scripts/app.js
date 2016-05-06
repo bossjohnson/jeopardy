@@ -1,14 +1,11 @@
 // Set up the Game
 $(function() {
-  $('#jeopardyTheme').get(0).play();
+    $('#jeopardyTheme').get(0).play();
     // $(document).keydown(function(key) {
     //     if (key.keyCode === 16) {
     //         finalJeopardy();
     //     }
     // });
-
-// 296?
-// 333?
 
     currentRound = 1;
     money = 0;
@@ -206,13 +203,12 @@ function promptUser(question, cell) {
             window.clearInterval(timeToAnswer);
             timeToAnswer = window.setInterval(function() {
                 if (!timeLeft) {
-                    console.log('Out of time!');
                     $('#timesUp').get(0).play();
                     checkAnswer(question, $answerField.val(), $prompt);
                 }
                 $timerBar.children().first().remove();
                 $timerBar.children().last().remove();
-                console.log(timeLeft--);
+                timeLeft--;
             }, 2000);
 
             $answerField.keypress(function(key) {
@@ -231,9 +227,21 @@ function promptUser(question, cell) {
 
         if (timeToRingIn < 0) {
             window.clearInterval(ringIn);
-            console.log("time's up");
             $('#timesUp').get(0).play();
             $prompt.remove();
+            $('#shouldaSaid').text('The answer we were looking for was <br>' + question.answer + '.');
+            $('#shouldaSaid').show();
+            // Go to next round?
+            cluesUsed++;
+            console.log("Clues used:", cluesUsed);
+            if (cluesUsed === 30) {
+                if (currentRound === 1) {
+                    currentRound = 2;
+                    newRound();
+                } else {
+                    finalJeopardy();
+                }
+            }
         }
     }, 1000);
 }
@@ -272,8 +280,6 @@ function dailyDouble(question, cell) {
                 wager = money;
                 $('#dailyDouble').remove();
                 promptUser(question, cell);
-            } else {
-                console.log("nope");
             }
         });
 
@@ -283,7 +289,6 @@ function dailyDouble(question, cell) {
 
 
                 if (wagerAmt > money && wagerAmt > (1000 * currentRound) || wagerAmt < 0) {
-                    console.log("You can't wager that much!");
                     $('#wager').css('border', '5px solid red');
                     $('#wager').animate({
                         'border-width': '1px'
@@ -315,19 +320,24 @@ function checkAnswer(question, answer, $prompt) {
         $('#wrong').hide();
         $('#correct').show();
         $('#feedbackContainer').fadeOut(1000);
+        $('#shouldaSaid').hide();
         if (money >= 0) {
             $('.money').css('color', 'white');
         }
     } else {
-        // console.log("The correct answer was", correct + ", but you guessed", user);
 
         $('#feedbackContainer').show();
         $('#correct').hide();
         $('#wrong').show();
+        $('#shouldaSaid').html('The answer we were looking for was <br>' + question.answer + '.');
+        console.log("The answer was", correct);
+        $('#shouldaSaid').show();
+
         $('#feedbackContainer').fadeOut(1000);
         if (!thisIsADailyDouble) {
             money -= question.value * currentRound;
         } else {
+            console.log("money:", money, "wager", wager);
             money -= wager;
             $('#bummer').get(0).play()
         }
@@ -340,6 +350,7 @@ function checkAnswer(question, answer, $prompt) {
 
     // Go to next round?
     cluesUsed++;
+    console.log("Clues used:", cluesUsed);
     if (cluesUsed === 30) {
         if (currentRound === 1) {
             currentRound = 2;
@@ -421,6 +432,12 @@ function addDailyDoubles() {
 }
 
 function finalJeopardy() {
+    $('#shouldaSaid').hide();
+
+    if (money <= 0) {
+        endGame();
+    }
+
     var question;
     var answer;
     $.ajax({
@@ -489,7 +506,6 @@ function finalCheck(correctAnswer, userAnswer) {
     var user = normalizeAnswer(userAnswer)[0];
 
     if (correct === user) {
-        console.log("yup!");
         $('#feedbackContainer').show();
         $('#wrong').hide();
         $('#correct').show();
@@ -497,10 +513,10 @@ function finalCheck(correctAnswer, userAnswer) {
         money += wager;
         endGame();
     } else {
-        console.log("nope");
         $('#feedbackContainer').show();
         $('#correct').hide();
         $('#wrong').show();
+        console.log("The answer was", correct);
         $('#feedbackContainer').fadeOut(3000);
         money -= wager;
         endGame();
@@ -512,6 +528,7 @@ function endGame() {
     var $endGame = $('<div id="endGame">Game Over!</div>');
     $('main').css('justify-content', 'center');
     $('main').css('align-items', 'center');
+    $('.money').text('$' + money);
     $('main').append($endGame);
     $endGame.append('<br>Your total score: $' + money);
 }
