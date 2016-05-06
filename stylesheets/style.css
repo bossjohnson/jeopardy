@@ -199,7 +199,7 @@ video {
 .podiumTopBottom {
     background-image: linear-gradient(45deg, gray, darkgray);
     border: 1px solid black;
-    height: 10px;
+    height: 5%;
     width: 100%;
     position: absolute;
 }
@@ -207,7 +207,8 @@ video {
     bottom: 0;
 }
 .podiumCenter {
-    background-image: linear-gradient(30deg, royalblue, darkblue);
+    background-image: url(../images/podium_background.png);
+    background-size: cover;
     width: 84%;
     position: relative;
     height: 100%;
@@ -225,7 +226,7 @@ video {
     font-size: 2em;
 }
 .podiumDisplay:nth-child(2) {
-    top: 10px;
+    top: 5%;
     height: 15%;
 }
 .podiumDisplay:nth-child(3) {

@@ -1,6 +1,6 @@
 // Set up the Game
 $(function() {
-
+  $('#jeopardyTheme').get(0).play();
     // $(document).keydown(function(key) {
     //     if (key.keyCode === 16) {
     //         finalJeopardy();
@@ -109,6 +109,7 @@ function populateCategories() {
 
 function populateQuestionValues() {
     for (var i = 1; i < 7; i++) {
+        $('#jeopardyTheme').get(0).pause();
         $('#boardFillSound').get(0).play();
         window.setTimeout(function() {
             $('.column:nth-of-type(' + i + ') .question:nth-of-type(2)').text('$' + (200 * currentRound));
@@ -315,7 +316,8 @@ function checkAnswer(question, answer, $prompt) {
             $('.money').css('color', 'white');
         }
     } else {
-        console.log("The correct answer was", correct + ", but you guessed", user);
+        // console.log("The correct answer was", correct + ", but you guessed", user);
+
         $('#feedbackContainer').show();
         $('#correct').hide();
         $('#wrong').show();
