@@ -1,10 +1,5 @@
 // Set up the Game
 $(function() {
-
-    // dummy scores
-    // {Alex Trebek: 5000, Ken Jennings: 4000, Arthur Chu: 3000, Sean Connery: 2000, Boss Johnson: 1000}
-
-
     $('#jeopardyTheme').get(0).play();
     $(document).keydown(function(key) {
         if (key.keyCode === 112) {
@@ -235,7 +230,7 @@ function promptUser(question, cell) {
             window.clearInterval(ringIn);
             $('#timesUp').get(0).play();
             $prompt.remove();
-            $('#shouldaSaid').text('The answer we were looking for was <br>' + question.answer + '.');
+            $('#shouldaSaid').html('The answer we were looking for was <br>' + question.answer + '.');
             $('#shouldaSaid').show();
             // Go to next round?
             cluesUsed++;
@@ -490,6 +485,9 @@ function finalJeopardy() {
 
 function finalPrompt(question, answer) {
     $('#think').get(0).play();
+    $('#think').on('ended', function() {
+      finalCheck(answer, $answerField.val());
+    })
     var $prompt = $('<div id="finalPrompt" class="prompt">' + question.toUpperCase() + '</div>');
     $('#finalJeopardy').prepend($prompt);
     $('#finalJeopardy').addClass('question');
@@ -509,6 +507,7 @@ function finalPrompt(question, answer) {
 
 function finalCheck(correctAnswer, userAnswer) {
     $('#think').get(0).pause();
+    $('#think').off('ended');
     $('#finalJeopardy').remove();
     $('main *').remove();
     var correct = normalizeAnswer(correctAnswer)[0];
