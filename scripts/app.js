@@ -1,12 +1,11 @@
 // Set up the Game
 $(function() {
 
-    // Skip to Final Jeopardy NOTE: REMOVE FOR PRODUCTION!
-    $(document).keydown(function(key) {
-        if (key.keyCode === 16) {
-            finalJeopardy();
-        }
-    });
+    // $(document).keydown(function(key) {
+    //     if (key.keyCode === 16) {
+    //         finalJeopardy();
+    //     }
+    // });
 
     currentRound = 1;
     money = 0;
@@ -361,7 +360,7 @@ function normalizeAnswer(answer) {
         answer = answer.slice(0, -1);
     }
 
-    answer = answer.toLowerCase().replace(/<.+?>|-|\.|\\|\'|\&/g, '')
+    answer = answer.toLowerCase().replace(/<.+?>|-|\.|\\|\'|\"|\&/g, '')
         .replace('10', 'ten')
         .replace('9', 'nine')
         .replace('8', 'eight')
@@ -417,7 +416,6 @@ function addDailyDoubles() {
 }
 
 function finalJeopardy() {
-    money = 1000; // NOTE: FOR TESTING - remove for production
     var question;
     var answer;
     $.ajax({
@@ -477,7 +475,6 @@ function finalPrompt(question, answer) {
             finalCheck(answer, $answerField.val());
         }
     });
-
 }
 
 function finalCheck(correctAnswer, userAnswer) {
@@ -487,20 +484,32 @@ function finalCheck(correctAnswer, userAnswer) {
     var user = normalizeAnswer(userAnswer)[0];
 
     if (correct === user) {
-      console.log("yup!");
-      $('#feedbackContainer').show();
-      $('#wrong').hide();
-      $('#correct').show();
-      $('#feedbackContainer').fadeOut(3000);
+        console.log("yup!");
+        $('#feedbackContainer').show();
+        $('#wrong').hide();
+        $('#correct').show();
+        $('#feedbackContainer').fadeOut(3000);
+        money += wager;
+        endGame();
     } else {
-      console.log("nope");
-      $('#feedbackContainer').show();
-      $('#correct').hide();
-      $('#wrong').show();
-      $('#feedbackContainer').fadeOut(3000);
+        console.log("nope");
+        $('#feedbackContainer').show();
+        $('#correct').hide();
+        $('#wrong').show();
+        $('#feedbackContainer').fadeOut(3000);
+        money -= wager;
+        endGame();
     }
-
 }
+
+function endGame() {
+    var $endGame = $('<div id="endGame">Game Over!</div>');
+    $('main').css('justify-content', 'center');
+    $('main').css('align-items', 'center');
+    $('main').append($endGame);
+    $endGame.append('<br>Your total score: $' + money);
+}
+
 // TODO: "SEEN HERE" stuff -       https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
 
 // ================
