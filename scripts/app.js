@@ -1,11 +1,16 @@
 // Set up the Game
 $(function() {
+
+    // dummy scores
+    // {Alex Trebek: 5000, Ken Jennings: 4000, Arthur Chu: 3000, Sean Connery: 2000, Boss Johnson: 1000}
+
+
     $('#jeopardyTheme').get(0).play();
-    // $(document).keydown(function(key) {
-    //     if (key.keyCode === 16) {
-    //         finalJeopardy();
-    //     }
-    // });
+    $(document).keydown(function(key) {
+        if (key.keyCode === 112) {
+            finalJeopardy();
+        }
+    });
 
     currentRound = 1;
     money = 0;
@@ -34,6 +39,7 @@ $(function() {
     $('#yourName').keypress(function(key) {
         if (key.keyCode === 13 && $('#yourName').val() !== '') {
             playerName = $('#yourName').val();
+            playerName = playerName.slice(0, 1).toUpperCase() + playerName.slice(1, playerName.length);
             $podium.remove();
             $('.money').show();
             $('.playerName').text(playerName);
@@ -436,6 +442,7 @@ function finalJeopardy() {
 
     if (money <= 0) {
         endGame();
+        return;
     }
 
     var question;
@@ -482,6 +489,7 @@ function finalJeopardy() {
 }
 
 function finalPrompt(question, answer) {
+    $('#think').get(0).play();
     var $prompt = $('<div id="finalPrompt" class="prompt">' + question.toUpperCase() + '</div>');
     $('#finalJeopardy').prepend($prompt);
     $('#finalJeopardy').addClass('question');
@@ -500,6 +508,7 @@ function finalPrompt(question, answer) {
 }
 
 function finalCheck(correctAnswer, userAnswer) {
+    $('#think').get(0).pause();
     $('#finalJeopardy').remove();
     $('main *').remove();
     var correct = normalizeAnswer(correctAnswer)[0];
@@ -526,11 +535,37 @@ function finalCheck(correctAnswer, userAnswer) {
 function endGame() {
     $('#jeopardyTheme').get(0).play()
     var $endGame = $('<div id="endGame">Game Over!</div>');
+    $('main *').remove();
     $('main').css('justify-content', 'center');
     $('main').css('align-items', 'center');
     $('.money').text('$' + money);
     $('main').append($endGame);
     $endGame.append('<br>Your total score: $' + money);
+
+    var highScores = JSON.parse(window.localStorage.getItem('highScores'));
+    highScores[playerName] = money;
+    window.localStorage.setItem('highScores', JSON.stringify(highScores));
+    var $highScores = '<div id="highScores"><span>High Scores:</span><br></div>';
+    $('main').append($highScores);
+
+    var scoreList = [];
+    // console.log(highScores);
+    for (var key in highScores) {
+        // console.log(key);
+        scoreList.push(highScores[key]);
+    }
+    scoreList.sort(function(a, b) {
+        return b - a;
+    });
+    for (var i = 0; i < 5; i++) {
+        for (var person in highScores) {
+            if (highScores[person] === scoreList[i]) {
+                $('#highScores').append('<br>' + person, ': $' + scoreList[i]);
+            }
+        }
+    }
+    // console.log(scoreList);
+
 }
 
 // TODO: "SEEN HERE" stuff -       https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
