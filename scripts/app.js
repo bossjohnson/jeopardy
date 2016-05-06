@@ -230,7 +230,7 @@ function promptUser(question, cell) {
             window.clearInterval(ringIn);
             $('#timesUp').get(0).play();
             $prompt.remove();
-            $('#shouldaSaid').html('The answer we were looking for was <br>' + question.answer + '.');
+            $('#shouldaSaid').html('The answer we were looking for was <br>' + question.answer.replace(/<.+?>|-|\.|\\|\'|\"|\&/g, '') + '.');
             $('#shouldaSaid').show();
             // Go to next round?
             cluesUsed++;
@@ -330,7 +330,7 @@ function checkAnswer(question, answer, $prompt) {
         $('#feedbackContainer').show();
         $('#correct').hide();
         $('#wrong').show();
-        $('#shouldaSaid').html('The answer we were looking for was <br>' + question.answer + '.');
+        $('#shouldaSaid').html('The answer we were looking for was <br>' + question.answer.replace(/<.+?>|-|\.|\\|\'|\"|\&/g, '') + '.');
         console.log("The answer was", correct);
         $('#shouldaSaid').show();
 
