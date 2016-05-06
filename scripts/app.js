@@ -7,6 +7,9 @@ $(function() {
     //     }
     // });
 
+// 296?
+// 333?
+
     currentRound = 1;
     money = 0;
     $('#feedbackContainer').hide();
@@ -505,6 +508,7 @@ function finalCheck(correctAnswer, userAnswer) {
 }
 
 function endGame() {
+    $('#jeopardyTheme').get(0).play()
     var $endGame = $('<div id="endGame">Game Over!</div>');
     $('main').css('justify-content', 'center');
     $('main').css('align-items', 'center');
