@@ -7,6 +7,8 @@ $(function() {
         }
     });
 
+
+
     currentRound = 1;
     money = 0;
     $('#feedbackContainer').hide();
@@ -486,7 +488,7 @@ function finalJeopardy() {
 function finalPrompt(question, answer) {
     $('#think').get(0).play();
     $('#think').on('ended', function() {
-      finalCheck(answer, $answerField.val());
+        finalCheck(answer, $answerField.val());
     })
     var $prompt = $('<div id="finalPrompt" class="prompt">' + question.toUpperCase() + '</div>');
     $('#finalJeopardy').prepend($prompt);
@@ -541,7 +543,20 @@ function endGame() {
     $('main').append($endGame);
     $endGame.append('<br>Your total score: $' + money);
 
-    var highScores = JSON.parse(window.localStorage.getItem('highScores'));
+
+    if (window.localStorage.getItem('highScores') === null) {
+        var highScores = {
+            'Alex Trebek': 5000,
+            'Ken Jennings': 4000,
+            'Arthur Chu': 3000,
+            'Darth Vader': 2000,
+            'Batman': 1000
+        }
+    } else {
+        var highScores = JSON.parse(window.localStorage.getItem('highScores'));
+    }
+    console.log(highScores);
+
     highScores[playerName] = money;
     window.localStorage.setItem('highScores', JSON.stringify(highScores));
     var $highScores = '<div id="highScores"><span>High Scores:</span><br></div>';
