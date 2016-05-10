@@ -164,9 +164,6 @@ video {
     top: 0;
     left: 0;
 }
-
-/*Podium*/
-
 #namePrompt {
     position: fixed;
     top: 0;
@@ -242,9 +239,17 @@ video {
     font-size: 1.3em;
     width: 100%;
 }
-#pressEnter {
-    font-size: .6em;
-    color: gray;
+#answerButton, #skip {
+    font-size: 1em;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, .5);
+    border: 2px solid black;
+    border-radius: 8px;
+    background-color: blue;
+    padding: 10px;
+    margin: 10px;
+}
+#answerButton:hover, #skip:hover {
+    background-color: #0030FF;
 }
 .timerBar {
     position: relative;
@@ -292,15 +297,15 @@ video {
     left: 9%;
 }
 #highScores {
-  color: white;
-  font-size: 1em;
-  border: 1px solid black;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  margin: 10px;
-  padding: 10px;
+    color: white;
+    font-size: 1em;
+    border: 1px solid black;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    margin: 10px;
+    padding: 10px;
 }
 #highScores span {
-  font-size: 1.5em;
+    font-size: 1.5em;
 }

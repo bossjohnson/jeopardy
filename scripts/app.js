@@ -7,7 +7,7 @@ $(function() {
         }
     });
 
-
+    // TODO: Add help page
 
     currentRound = 1;
     money = 0;
@@ -178,17 +178,19 @@ function promptUser(question, cell) {
         });
     }
     cell.off('click');
-    $prompt.append('<span id="pressEnter"><br>(press Enter to answer)</span>');
+    $prompt.append('<br><button id="answerButton">Answer</button>');
+    $prompt.append('<br><button id="skip">Skip</button>');
 
-    $(document).keypress(function(key) {
+    $(document).keydown(function(key) {
         if (key.keyCode === 13) {
             window.clearInterval(ringIn);
 
-            $(document).off('keypress');
-            $('#pressEnter').remove();
+            $(document).off('keydown');
+            $('#answerButton').remove();
+            $('#skip').remove();
             var $answerField = $('<input type="text" id="answer">');
             $prompt.append($answerField);
-            $answerField.before('<br><br><label for="answer">What is </label>');
+            $answerField.before('<label for="answer">What is </label>');
             $answerField.after('<label for="answer">?</label>');
             $answerField.focus();
 
@@ -214,39 +216,54 @@ function promptUser(question, cell) {
                 timeLeft--;
             }, 2000);
 
-            $answerField.keypress(function(key) {
+            $answerField.keydown(function(key) {
                 if (key.keyCode === 13) {
                     var answer = $answerField.val();
                     checkAnswer(question, answer, $prompt);
                 }
             });
+        } else if (key.keyCode === 27) {
+            $('#skip').click();
         }
     });
 
+    $('#answerButton').click(function() {
+        e = $.Event('keydown');
+        e.keyCode = 13;
+        $(document).trigger(e);
+    });
+    $('#skip').click(function() {
+        outOfTime(ringIn, $prompt, question);
+    });
+
     // Timer for player to ring in
-    var timeToRingIn = 5;
+    var timeToRingIn = 7;
     var ringIn = window.setInterval(function() {
         timeToRingIn--;
 
         if (timeToRingIn < 0) {
-            window.clearInterval(ringIn);
-            $('#timesUp').get(0).play();
-            $prompt.remove();
-            $('#shouldaSaid').html('The answer we were looking for was <br>' + question.answer.replace(/<.+?>|-|\.|\\|\'|\"|\&/g, '') + '.');
-            $('#shouldaSaid').show();
-            // Go to next round?
-            cluesUsed++;
-            console.log("Clues used:", cluesUsed);
-            if (cluesUsed === 30) {
-                if (currentRound === 1) {
-                    currentRound = 2;
-                    newRound();
-                } else {
-                    finalJeopardy();
-                }
-            }
+            outOfTime(ringIn, $prompt, question);
         }
     }, 1000);
+}
+
+function outOfTime(ringIn, $prompt, question) {
+    window.clearInterval(ringIn);
+    $('#timesUp').get(0).play();
+    $prompt.remove();
+    $('#shouldaSaid').html('The answer we were looking for was <br>' + question.answer.replace(/<.+?>|-|\.|\\|\'|\"|\&/g, '') + '.');
+    $('#shouldaSaid').show();
+    // Go to next round?
+    cluesUsed++;
+    console.log("Clues used:", cluesUsed);
+    if (cluesUsed === 30) {
+        if (currentRound === 1) {
+            currentRound = 2;
+            newRound();
+        } else {
+            finalJeopardy();
+        }
+    }
 }
 
 function dailyDouble(question, cell) {
@@ -328,19 +345,18 @@ function checkAnswer(question, answer, $prompt) {
             $('.money').css('color', 'white');
         }
     } else {
-
         $('#feedbackContainer').show();
         $('#correct').hide();
         $('#wrong').show();
         $('#shouldaSaid').html('The answer we were looking for was <br>' + question.answer.replace(/<.+?>|-|\.|\\|\'|\"|\&/g, '') + '.');
         console.log("The answer was", correct);
+        console.log("You said", user);
         $('#shouldaSaid').show();
 
         $('#feedbackContainer').fadeOut(1000);
         if (!thisIsADailyDouble) {
             money -= question.value * currentRound;
         } else {
-            console.log("money:", money, "wager", wager);
             money -= wager;
             $('#bummer').get(0).play()
         }
@@ -428,6 +444,7 @@ function addDailyDoubles() {
         if (row1 === row2 && col1 === col2) {
             console.log("Trying again!");
             addDailyDoubles();
+            return;
         }
         $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').attr('dailyDouble', 'true');
         $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').attr('dailyDouble', 'true');
@@ -469,7 +486,6 @@ function finalJeopardy() {
                     var wagerAmt = Number($('#wager').val());
 
                     if (wagerAmt > money || wagerAmt < 0) {
-                        console.log("You can't wager that much!");
                         $('#wager').css('border', '5px solid red');
                         $('#wager').animate({
                             'border-width': '1px'
@@ -555,7 +571,6 @@ function endGame() {
     } else {
         var highScores = JSON.parse(window.localStorage.getItem('highScores'));
     }
-    console.log(highScores);
 
     highScores[playerName] = money;
     window.localStorage.setItem('highScores', JSON.stringify(highScores));
@@ -563,9 +578,7 @@ function endGame() {
     $('main').append($highScores);
 
     var scoreList = [];
-    // console.log(highScores);
     for (var key in highScores) {
-        // console.log(key);
         scoreList.push(highScores[key]);
     }
     scoreList.sort(function(a, b) {
@@ -578,11 +591,8 @@ function endGame() {
             }
         }
     }
-    // console.log(scoreList);
-
 }
 
-// TODO: "SEEN HERE" stuff -       https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
 
 // ================
 // Global Variables
@@ -597,3 +607,8 @@ var categories,
     thisIsADailyDouble,
     playerName,
     timeToAnswer;
+
+
+
+    // TODO: "SEEN HERE" stuff -       https://pixabay.com/api/?key =2505523-2af450349a0621791ec127e3b
+    // TODO: Remove need to ring in on daily doubles
