@@ -127,6 +127,8 @@ function populateQuestionValues() {
     // Attach click handlers
     addDailyDoubles();
     $('.question').click(handleQuestion);
+    $('.question').attr('used', 'false');
+
 }
 
 function handleQuestion(e) {
@@ -442,12 +444,14 @@ function addDailyDoubles() {
         // Make sure we have two different cells!
         // TODO: Debug this!  It puts up three daily doubles sometimes???
         if (row1 === row2 && col1 === col2) {
-            console.log("Trying again!");
+            console.log("Duplicates!");
             addDailyDoubles();
             return;
         }
         $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').attr('dailyDouble', 'true');
         $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').attr('dailyDouble', 'true');
+        // $('.column:nth-of-type(' + col1 + ') .question:nth-child(' + (row1 + 1) + ')').css('background-color', 'red');
+        // $('.column:nth-of-type(' + col2 + ') .question:nth-child(' + (row2 + 1) + ')').css('background-color', 'red');
     }
 }
 
