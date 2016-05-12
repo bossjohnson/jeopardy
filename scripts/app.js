@@ -1,10 +1,9 @@
 // Set up the Game
 $(function() {
     $('#jeopardyTheme').get(0).play();
-    $(document).keydown(function(key) {
-        if (key.keyCode === 112) {
+    $('.money').click(function(key) {
+          console.log("final");
             finalJeopardy();
-        }
     });
 
     // TODO: Add help page
@@ -491,10 +490,18 @@ function finalJeopardy() {
             'height': '100%',
         }, 700, function() {
             var $wager = $('<div><label for="wager">How much would you like to wager?</label><input type="number" id="wager"></div>');
+            var $submitWager = $('<br><button id="submitWager">Submit</button>');
             $finalJeopardy.append($wager);
+            $('#wager').after($submitWager);
             $('#finalJeopardy div').prepend($('<span>You currently have <span id="yourMoney">$' + money + '</span>.</span><br>'));
             $('#finalJeopardy div').prepend($('<span>The category is: <span class="finalJeopardyCategory">' + data[0].category.title.toUpperCase() + '</span></span>'));
             $('#wager').focus();
+
+            $('#submitWager').click(function() {
+              var e = $.Event('keypress');
+              e.keyCode = 13;
+              $('#wager').trigger(e);
+            });
 
             $('#wager').keypress(function(key) {
                 if (key.keyCode === 13 && $('#wager').val() !== '') {
@@ -505,6 +512,7 @@ function finalJeopardy() {
                         $('#wager').animate({
                             'border-width': '1px'
                         }, 100);
+                        $('#wager').focus();
                     } else {
                         wager = wagerAmt;
                         $('#finalJeopardy div').remove();
@@ -557,7 +565,12 @@ function finalCheck(correctAnswer, userAnswer) {
         $('#feedbackContainer').show();
         $('#correct').hide();
         $('#wrong').show();
+        $('#shouldaSaid').html('The answer we were looking for was <br>' + correctAnswer.replace(/<.+?>|-|\.|\\|\'|\"|\&/g, '') + '.');
+        $('#shouldaSaid').show();
+
         console.log("The answer was", correct);
+        console.log("You said", user);
+        // console.log("The answer was", correct);
         $('#feedbackContainer').fadeOut(3000);
         money -= wager;
         endGame();
