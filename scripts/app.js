@@ -287,6 +287,7 @@ function dailyDouble(question, cell) {
     }, 700);
     window.setTimeout(function() {
         var $wager = $('<div><label for="wager">How much would you like to wager?</label><input type="number" id="wager"></div>');
+        var $submitWager = $('<br><button id="submitWager">Submit</button>');
         var $trueDD = $('<br><button id="trueDD">I\'d like to make it a true Daily Double!</button>');
         $('#dailyDouble').append($wager);
         $('#dailyDouble div').prepend($('<span>You currently have <span id="yourMoney">$' + money + '</span>.</span><br>'));
@@ -295,14 +296,22 @@ function dailyDouble(question, cell) {
         }
         $('#wager').focus();
         $('#wager').after($trueDD);
+        $('#wager').after($submitWager);
 
         // Attach event handlers
+
         $('#trueDD').click(function() {
             if (money > 0) {
                 wager = money;
                 $('#dailyDouble').remove();
                 promptUser(question, cell);
             }
+        });
+
+        $('#submitWager').click(function() {
+          var e = $.Event('keypress');
+          e.keyCode = 13;
+          $('#wager').trigger(e);
         });
 
         $('#wager').keypress(function(key) {
@@ -315,6 +324,7 @@ function dailyDouble(question, cell) {
                     $('#wager').animate({
                         'border-width': '1px'
                     }, 100);
+                    $('#wager').focus();
                 } else {
                     wager = wagerAmt;
                     $('#dailyDouble').remove();
@@ -435,6 +445,7 @@ function addDailyDoubles() {
         var row = Math.floor(Math.random() * 4) + 1;
         var col = Math.floor(Math.random() * 5) + 1;
         $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').attr('dailyDouble', 'true');
+        $('.column:nth-of-type(' + col + ') .question:nth-child(' + (row + 1) + ')').css('background-color', 'red');
     } else {
         var row1 = Math.floor(Math.random() * 4) + 1;
         var col1 = Math.floor(Math.random() * 5) + 1;
